@@ -1,46 +1,57 @@
-use std::fmt::{self,Display};
-
-// Fraction: 分数
-struct Fraction(u32, u32);
-
-impl Fraction {
-    fn new(numetator: u32, denomimator: u32) -> Self {
-        let gcf_value = Self::gcf(numetator,denomimator);
-        Self(numetator / gcf_value, denomimator / gcf_value)
-    }
-
-    // 最大公約数(greatest common factor: gcf) 計算
-    fn gcf(value1: u32, value2: u32) -> u32 {
-        // ユークリッドの互除法
-        // `a` > `b`
-        // 0. `a` > `b`で余り`r`を求める
-        // 1. `a`/`b`が０でないなら`b`/`r`で余り`r2`を求める
-        // 2. `r2`が０でないなら`r`/`r2で余り`r3`を求める
-        // 3. ...(繰り返すと必ず余りが0になる)
-        // 4. 余りが0になったときに、**割った数が最大公約数**
-        let (mut a, mut b) = if value1 > value2 {
-            (value1, value2)
-        } else {
-            (value2, value1)
-        };
-        let mut r = a % b;
-        while r != 0 {
-            a = b;
-            b = r;
-            r = a % b;
-        }
-        b
-    }
+trait Area {
+  fn area(&self) -> u32;
 }
 
-impl  Display for Fraction {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}/{}", &self.0, &self.1)
-    }
+// 1辺の長さを保持
+struct Square(u32);
+
+impl Area for Square {
+  fn area(&self) -> u32 {
+    self.0.pow(2)
+  }
+}
+impl Square {
+  fn new(side: u32) -> Self {
+    Self(side)
+  }
 }
 
+struct Rectangle(u32,u32);
+
+impl Area for Rectangle {
+  fn area(&self) -> u32 {
+    self.0 * self.1
+  }
+}
+
+impl Rectangle {
+  fn new(a: u32, b: u32) -> Self {
+    Self(a, b)
+  }
+}
+
+// fn comparison_area(a: impl Area, b: impl Area) -> bool {
+//   a.area() == b.area()
+// }
+
+// fn comparison_area<T: Area, U: Area>(a: T, b: U) -> bool {
+//   a.area() == b.area()
+// }
+
+
+fn comparison_area<T, U>(a: T, b: U) -> bool
+where
+  T: Area,
+  U: Area,
+{
+  a.area() == b.area()
+}
 fn main() {
-    let a = Fraction::new(8, 18);
-    println!("{}", a);
+  let my_square = Square::new(5);
+  let my_rectangle = Rectangle::new(5, 5);
+  if comparison_area(my_square, my_rectangle) {
+    println!("面積は等しい");
+  } else {
+    println!("面積は異なる");
+  }
 }
-
